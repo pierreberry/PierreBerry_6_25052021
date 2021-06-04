@@ -2,12 +2,14 @@ const Sauces = require('../models/Sauces');
 const fs = require('fs');
 
 exports.createSauce = (req, res) => {
-    console.log(JSON.parse(req.body.sauce))
     const sauceObject = JSON.parse(req.body.sauce);
-    delete sauceObject._id;
     const sauce = new Sauces({
         ...sauceObject,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
     });
     sauce.save()
         .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
@@ -36,6 +38,49 @@ exports.modifySauce = (req, res) => {
     Sauces.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Objet modifié !' }))
         .catch(error => res.status(400).json({ error }));
+};
+
+exports.likeSauce = (req, res) => {
+    Sauces.findOne({ _id: req.params.id })
+        .then(sauce => {
+            if (req.body.like === 1) {
+                sauce.likes++
+                sauce.usersLiked.push(req.body.userId)
+                Sauces.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked })
+                    .then(() => res.status(200).json({ message: 'Like pris en compte' }))
+                    .catch(error => res.status(400).json({ error }));
+            }
+            if (req.body.like === -1) {
+                sauce.dislikes++
+                sauce.usersDisliked.push(req.body.userId)
+                Sauces.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked })
+                    .then(() => res.status(200).json({ message: 'Dislike pris en compte' }))
+                    .catch(error => res.status(400).json({ error }));
+            }
+            if (req.body.like === 0) {
+                if (sauce.usersLiked.includes(req.body.userId)) {
+                    sauce.likes--
+                    var index = sauce.usersLiked.indexOf(req.body.userId);
+                    if (index !== -1) {
+                        sauce.usersLiked.splice(index, 1);
+                    }
+                    Sauces.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked })
+                        .then(() => res.status(200).json({ message: 'Like pris en compte' }))
+                        .catch(error => res.status(400).json({ error }));
+                }
+                if (sauce.usersDisliked.includes(req.body.userId)) {
+                    sauce.dislikes--
+                    var index = sauce.usersDisliked.indexOf(req.body.userId);
+                    if (index !== -1) {
+                        sauce.usersDisliked.splice(index, 1);
+                    }
+                    Sauces.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked })
+                        .then(() => res.status(200).json({ message: 'Dislike pris en compte' }))
+                        .catch(error => res.status(400).json({ error }));
+                }
+            }
+        })
+        .catch(error => res.status(500).json({ error }))
 };
 
 exports.getOneSauce = (req, res) => {
