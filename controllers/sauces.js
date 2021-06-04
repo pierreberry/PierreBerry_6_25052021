@@ -60,7 +60,7 @@ exports.likeSauce = (req, res) => {
             if (req.body.like === 0) {
                 if (sauce.usersLiked.includes(req.body.userId)) {
                     sauce.likes--
-                    var index = sauce.usersLiked.indexOf(req.body.userId);
+                    const index = sauce.usersLiked.indexOf(req.body.userId);
                     if (index !== -1) {
                         sauce.usersLiked.splice(index, 1);
                     }
@@ -70,7 +70,7 @@ exports.likeSauce = (req, res) => {
                 }
                 if (sauce.usersDisliked.includes(req.body.userId)) {
                     sauce.dislikes--
-                    var index = sauce.usersDisliked.indexOf(req.body.userId);
+                    const index = sauce.usersDisliked.indexOf(req.body.userId);
                     if (index !== -1) {
                         sauce.usersDisliked.splice(index, 1);
                     }
