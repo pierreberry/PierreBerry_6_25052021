@@ -65,7 +65,7 @@ exports.likeSauce = (req, res) => {
                         sauce.usersLiked.splice(index, 1);
                     }
                     Sauces.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked })
-                        .then(() => res.status(200).json({ message: 'Like pris en compte' }))
+                        .then(() => res.status(200).json({ message: 'Like retiré' }))
                         .catch(error => res.status(400).json({ error }));
                 }
                 if (sauce.usersDisliked.includes(req.body.userId)) {
@@ -75,7 +75,7 @@ exports.likeSauce = (req, res) => {
                         sauce.usersDisliked.splice(index, 1);
                     }
                     Sauces.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked })
-                        .then(() => res.status(200).json({ message: 'Dislike pris en compte' }))
+                        .then(() => res.status(200).json({ message: 'Dislike retiré' }))
                         .catch(error => res.status(400).json({ error }));
                 }
             }
