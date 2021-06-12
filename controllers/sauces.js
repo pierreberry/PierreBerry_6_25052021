@@ -42,41 +42,34 @@ exports.modifySauce = (req, res) => {
 
 exports.likeSauce = (req, res) => {
     Sauces.findOne({ _id: req.params.id })
-        .then(sauce => {
+        .then(async sauce => {
             if (req.body.like === 1) {
                 sauce.likes++
                 sauce.usersLiked.push(req.body.userId)
-                Sauces.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked })
-                    .then(() => res.status(200).json({ message: 'Like pris en compte' }))
-                    .catch(error => res.status(400).json({ error }));
-            }
-            if (req.body.like === -1) {
+                let obj = await UpdateLike(req.params.id, sauce.likes, sauce.usersLiked, true)
+                res.status(obj.status).json(obj.message)
+            } else if (req.body.like === -1) {
                 sauce.dislikes++
                 sauce.usersDisliked.push(req.body.userId)
-                Sauces.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked })
-                    .then(() => res.status(200).json({ message: 'Dislike pris en compte' }))
-                    .catch(error => res.status(400).json({ error }));
-            }
-            if (req.body.like === 0) {
+                let obj = await UpdateLike(req.params.id, sauce.dislikes, sauce.usersDisliked, false)
+                res.status(obj.status).json(obj.message)
+            } else if (req.body.like === 0) {
                 if (sauce.usersLiked.includes(req.body.userId)) {
                     sauce.likes--
                     const index = sauce.usersLiked.indexOf(req.body.userId);
                     if (index !== -1) {
                         sauce.usersLiked.splice(index, 1);
                     }
-                    Sauces.updateOne({ _id: req.params.id }, { likes: sauce.likes, usersLiked: sauce.usersLiked })
-                        .then(() => res.status(200).json({ message: 'Like retiré' }))
-                        .catch(error => res.status(400).json({ error }));
-                }
-                if (sauce.usersDisliked.includes(req.body.userId)) {
+                    let obj = await UpdateLike(req.params.id, sauce.likes, sauce.usersLiked, true)
+                    res.status(obj.status).json(obj.message)
+                } else if (sauce.usersDisliked.includes(req.body.userId)) {
                     sauce.dislikes--
                     const index = sauce.usersDisliked.indexOf(req.body.userId);
                     if (index !== -1) {
                         sauce.usersDisliked.splice(index, 1);
                     }
-                    Sauces.updateOne({ _id: req.params.id }, { dislikes: sauce.dislikes, usersDisliked: sauce.usersDisliked })
-                        .then(() => res.status(200).json({ message: 'Dislike retiré' }))
-                        .catch(error => res.status(400).json({ error }));
+                    let obj = await UpdateLike(req.params.id, sauce.dislikes, sauce.usersDisliked, false)
+                    res.status(obj.status).json(obj.message)
                 }
             }
         })
@@ -95,3 +88,14 @@ exports.getAllSauce = (req, res) => {
         .catch(error => res.status(400).json({ error }))
 };
 
+
+
+const UpdateLike = async (id, like, array, isLike) => {
+
+    const arrayLike = isLike ? { likes: like, usersLiked: array } : { dislikes: like, usersDisliked: array }
+
+    let httpCode = await Sauces.updateOne({ _id: id }, arrayLike)
+        .then(() => { return { status: 200, message: { message: 'ok' } } })
+        .catch(error => { return { status: 400, message: { error } } })
+    return httpCode
+};
