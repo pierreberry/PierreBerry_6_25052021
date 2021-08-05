@@ -91,9 +91,7 @@ exports.getAllSauce = (req, res) => {
 
 
 const UpdateLike = async (id, like, array, isLike) => {
-
     const arrayLike = isLike ? { likes: like, usersLiked: array } : { dislikes: like, usersDisliked: array }
-
     let httpCode = await Sauces.updateOne({ _id: id }, arrayLike)
         .then(() => { return { status: 200, message: { message: 'ok' } } })
         .catch(error => { return { status: 400, message: { error } } })
