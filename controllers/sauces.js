@@ -44,11 +44,17 @@ exports.likeSauce = (req, res) => {
     Sauces.findOne({ _id: req.params.id })
         .then(async sauce => {
             if (req.body.like === 1) {
+                if (sauce.likes === 1) {
+                    return res.status(401).json({ error: 'Vous avez déjà liké cette sauce' })
+                }
                 sauce.likes++
                 sauce.usersLiked.push(req.body.userId)
                 let obj = await UpdateLike(req.params.id, sauce.likes, sauce.usersLiked, true)
                 res.status(obj.status).json(obj.message)
             } else if (req.body.like === -1) {
+                if (sauce.dislikes === 1) {
+                    return res.status(401).json({ error: 'Vous avez déjà disliké cette sauce' })
+                }
                 sauce.dislikes++
                 sauce.usersDisliked.push(req.body.userId)
                 let obj = await UpdateLike(req.params.id, sauce.dislikes, sauce.usersDisliked, false)
