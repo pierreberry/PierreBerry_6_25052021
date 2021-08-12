@@ -4,9 +4,9 @@ const passwordValidator = require('password-validator')
 const emailValidator = require('email-validator')
 
 
+const password = new passwordValidator()
 const User = require('../models/User');
 
-const password = new passwordValidator()
 
 exports.signup = (req, res, next) => {
     if (!emailValidator.validate(req.body.email)) {
