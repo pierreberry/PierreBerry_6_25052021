@@ -9,15 +9,15 @@ const User = require('../models/User');
 
 
 exports.signup = (req, res, next) => {
-    if (!emailValidator.validate(req.body.email)) {
-        return res.status(401).json({ error: `Mauvais format d'email !` })
-    }
     password
         .is().min(8)
         .is().max(100)
         .has().uppercase(1)
         .has().digits(2)
         .has().symbols(1)
+    if (!emailValidator.validate(req.body.email)) {
+        return res.status(401).json({ error: `Mauvais format d'email !` })
+    }
     if (!password.validate(req.body.password)) {
         return res.status(401).json({ error: 'Mauvais format de mot de passe !' })
     }
