@@ -53,7 +53,7 @@ exports.likeSauce = (req, res) => {
                 let obj = await UpdateLike(req.params.id, sauce.likes, sauce.usersLiked, true)
                 res.status(obj.status).json(obj.message)
             } else if (req.body.like === -1) {
-                const index = sauce.usersLiked.indexOf(req.body.userId);
+                const index = sauce.usersDisliked.indexOf(req.body.userId);
                 if (index !== -1) {
                     return res.status(401).json({ error: 'Vous avez déjà disliké cette sauce' })
                 }
